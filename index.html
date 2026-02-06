@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Putar Audio YouTube</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .player {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .track-details h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .track-details p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .progress {
+            flex: 1;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .volume {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .volume input {
+            flex: 1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 14px;
+        }
+        
+        .error {
+            color: #ff4757;
+            background: #ffeaea;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .track-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Putar Audio YouTube</h1>
+        <p class="subtitle">Tempel link YouTube, langsung putar audio tanpa video</p>
+        
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="urlInput" 
+                placeholder="https://youtube.com/watch?v=... atau https://youtu.be/..."
+            >
+        </div>
+        
+        <button id="playBtn" onclick="playAudio()">▶️ Putar Audio</button>
+        
+        <div id="loading" class="loading hidden">
+            ⏳ Mendapatkan audio...
+        </div>
+        
+        <div id="error" class="error hidden"></div>
+        
+        <div id="player" class="player hidden">
+            <div class="track-info">
+                <img id="thumbnail" class="thumbnail" src="" alt="">
+                <div class="track-details">
+                    <h3 id="trackTitle">Judul Lagu</h3>
+                    <p id="trackChannel">Channel</p>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn" onclick="togglePlay()">
+                    <span id="playIcon">⏸️</span>
+                </button>
+                <div class="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="time">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="volume">
+                <span>🔊</span>
+                <input 
+                    type="range" 
+                    id="volume" 
+                    min="0" 
+                    max="100" 
+                    value="80"
+                    oninput="changeVolume(this.value)"
+                >
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ganti URL ini dengan URL Vercel Anda setelah deploy
+        const API_URL = '/api/audio'; // Untuk local dev
+        // const API_URL = 'https://nama-proyek-anda.vercel.app/api/audio'; // Untuk production
+        
+        let audio = new Audio();
+        let currentAudioUrl = '';
+        let isPlaying = false;
+        
+        async function playAudio() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Masukkan URL YouTube terlebih dahulu');
+                return;
+            }
+            
+            // Reset
+            audio.pause();
+            isPlaying = false;
+            showLoading(true);
+            hideError();
+            hidePlayer();
+            
+            try {
+                // Get audio from API
+                const response = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Update UI
+                document.getElementById('thumbnail').src = data.thumbnail;
+                document.getElementById('trackTitle').textContent = data.title;
+                document.getElementById('trackChannel').textContent = data.channel;
+                document.getElementById('duration').textContent = formatTime(data.duration);
+                
+                // Set audio source
+                audio.src = data.audioUrl;
+                currentAudioUrl = data.audioUrl;
+                
+                // Show player
+                showPlayer();
+                showLoading(false);
+                
+                // Auto play
+                await audio.play();
+                isPlaying = true;
+                updatePlayIcon();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Gagal memutar audio: ' + error.message);
+                showLoading(false);
+            }
+        }
+        
+        function togglePlay() {
+            if (!currentAudioUrl) return;
+            
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            
+            isPlaying = !isPlaying;
+            updatePlayIcon();
+        }
+        
+        function changeVolume(value) {
+            audio.volume = value / 100;
+        }
+        
+        // Audio events
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+        });
+        
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            updatePlayIcon();
+        });
+        
+        function updatePlayIcon() {
+            document.getElementById('playIcon').textContent = isPlaying ? '⏸️' : '▶️';
+        }
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // UI Helper functions
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+        
+        function showPlayer() {
+            document.getElementById('player').classList.remove('hidden');
+        }
+        
+        function hidePlayer() {
+            document.getElementById('player').classList.add('hidden');
+        }
+        
+        // Enter key support
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                playAudio();
+            }
+        });
+        
+        // Demo URLs on click
+        document.getElementById('urlInput').addEventListener('click', function() {
+            if (!this.value) {
+                this.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            }
+        });
+    </script>
+</body>
+</html>

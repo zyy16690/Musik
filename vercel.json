@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "apu/beken.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/apu/beken" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
